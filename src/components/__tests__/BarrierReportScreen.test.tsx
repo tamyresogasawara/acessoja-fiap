@@ -2,18 +2,24 @@ import { fireEvent, render } from '@testing-library/react-native';
 import { BarrierReportScreen } from '../BarrierReportScreen';
 
 describe('BarrierReportScreen', () => {
-  it('confirms a complete barrier report with feedback beyond color', async () => {
+  it('mantém o envio desabilitado até o formulário estar completo', async () => {
+    const screen = await render(<BarrierReportScreen onDone={jest.fn()} />);
+
+    const submit = screen.getByLabelText('Enviar relato de barreira');
+    expect(submit.props.accessibilityState).toEqual(expect.objectContaining({ disabled: true }));
+    await fireEvent.press(submit);
+    expect(screen.queryByText('Relato salvo!')).toBeNull();
+  });
+
+  it('confirma um relato completo com retorno além da cor', async () => {
     const onDone = jest.fn();
     const screen = await render(<BarrierReportScreen onDone={onDone} />);
 
-    await fireEvent.press(screen.getByLabelText('Select blocked sidewalk'));
-    await fireEvent.changeText(
-      screen.getByLabelText('Barrier details'),
-      'Construction blocks the full sidewalk near the bus stop.',
-    );
-    await fireEvent.press(screen.getByLabelText('Submit barrier report'));
+    await fireEvent.press(screen.getByLabelText('Calçada bloqueada'));
+    await fireEvent.changeText(screen.getByLabelText('Detalhes da barreira'), 'Obra bloqueia toda a calçada perto do ponto de ônibus.');
+    await fireEvent.press(screen.getByLabelText('Enviar relato de barreira'));
 
-    expect(screen.getByText('Report saved!')).toBeTruthy();
-    expect(screen.getByText('The community can now avoid this barrier.')).toBeTruthy();
+    expect(screen.getByText('Relato salvo!')).toBeTruthy();
+    expect(screen.getByText('A comunidade já pode evitar esta barreira.')).toBeTruthy();
   });
 });

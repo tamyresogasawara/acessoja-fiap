@@ -1,49 +1,35 @@
-import { useEffect, useRef, useState } from 'react';
-import {
-  AccessibilityInfo,
-  Animated,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { useRef, useState } from 'react';
+import { AccessibilityInfo, Animated, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { ActionButton } from './ActionButton';
+import { SelectionMark } from './SelectionMark';
 import { colors, spacing } from '../theme';
+import { useReduceMotion } from '../lib/use-reduce-motion';
 
 const categories = [
-  { id: 'sidewalk', label: 'Blocked sidewalk', symbol: '▰' },
-  { id: 'ramp', label: 'Missing ramp', symbol: '↗' },
-  { id: 'surface', label: 'Uneven surface', symbol: '≋' },
-  { id: 'entrance', label: 'Inaccessible entrance', symbol: '▣' },
+  { id: 'sidewalk', label: 'Calçada bloqueada', symbol: '▰' },
+  { id: 'ramp', label: 'Falta de rampa', symbol: '↗' },
+  { id: 'surface', label: 'Piso irregular', symbol: '≋' },
+  { id: 'entrance', label: 'Entrada inacessível', symbol: '▣' },
 ];
+
+const MAX_DETAILS = 180;
 
 type Props = { onDone: () => void };
 
 export function BarrierReportScreen({ onDone }: Props) {
+  const reduceMotion = useReduceMotion();
   const [category, setCategory] = useState('');
   const [details, setDetails] = useState('');
   const [saved, setSaved] = useState(false);
-  const [reduceMotion, setReduceMotion] = useState(false);
   const confirmationOpacity = useRef(new Animated.Value(0)).current;
   const confirmationScale = useRef(new Animated.Value(0.96)).current;
 
-  useEffect(() => {
-    let active = true;
-    AccessibilityInfo.isReduceMotionEnabled().then((enabled) => {
-      if (active) setReduceMotion(enabled);
-    });
-    const subscription = AccessibilityInfo.addEventListener('reduceMotionChanged', setReduceMotion);
-    return () => {
-      active = false;
-      subscription.remove();
-    };
-  }, []);
+  const formReady = Boolean(category && details.trim());
 
   function submit() {
-    if (!category || !details.trim()) return;
+    if (!formReady) return;
     setSaved(true);
+    AccessibilityInfo.announceForAccessibility('Relato salvo. A comunidade já pode evitar esta barreira.');
     if (reduceMotion) {
       confirmationOpacity.setValue(1);
       confirmationScale.setValue(1);
@@ -58,60 +44,82 @@ export function BarrierReportScreen({ onDone }: Props) {
   if (saved) {
     return (
       <View style={styles.successPage} accessibilityLiveRegion="polite">
-        <Animated.View style={[styles.successCircle, { opacity: confirmationOpacity, transform: [{ scale: confirmationScale }] }]}>
-          <Text style={styles.successSymbol} accessibilityElementsHidden>✓</Text>
+        <Animated.View
+          style={[styles.successCircle, { opacity: confirmationOpacity, transform: [{ scale: confirmationScale }] }]}
+          importantForAccessibility="no-hide-descendants"
+          accessibilityElementsHidden
+        >
+          <Text style={styles.successSymbol}>✓</Text>
         </Animated.View>
-        <Text accessibilityRole="header" style={styles.successTitle}>Report saved!</Text>
-        <Text style={styles.successText}>The community can now avoid this barrier.</Text>
-        <Text style={styles.successMeta}>Recorded near your current location · available offline</Text>
-        <ActionButton label="Return home" accessibilityLabel="Return to home" onPress={onDone} style={styles.doneButton} />
+        <Text accessibilityRole="header" style={styles.successTitle}>Relato salvo!</Text>
+        <Text style={styles.successText}>A comunidade já pode evitar esta barreira.</Text>
+        <Text style={styles.successMeta}>Registrado perto da sua localização · disponível offline</Text>
+        <ActionButton label="Voltar ao início" accessibilityLabel="Voltar à tela inicial" onPress={onDone} style={styles.doneButton} />
       </View>
     );
   }
 
-  const formReady = Boolean(category && details.trim());
-
   return (
     <ScrollView style={styles.page} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-      <Text style={styles.step}>STEP 1 OF 1</Text>
-      <Text accessibilityRole="header" style={styles.title}>What is blocking the way?</Text>
-      <Text style={styles.subtitle}>Choose one option and describe what you see. The report is saved even without internet.</Text>
+      <Text style={styles.step}>RELATO RÁPIDO · 2 CAMPOS</Text>
+      <Text accessibilityRole="header" style={styles.title}>O que está bloqueando o caminho?</Text>
+      <Text style={styles.subtitle}>Escolha uma opção e descreva o que você vê. O relato é salvo mesmo sem internet.</Text>
 
-      <View style={styles.grid} accessibilityRole="radiogroup">
+      <View style={styles.grid} accessibilityRole="radiogroup" accessibilityLabel="Tipo de barreira">
         {categories.map((item) => {
           const selected = category === item.id;
           return (
             <Pressable
               key={item.id}
               accessibilityRole="radio"
-              accessibilityState={{ selected }}
-              accessibilityLabel={`Select ${item.label.toLowerCase()}`}
+              accessibilityState={{ checked: selected, selected }}
+              accessibilityLabel={item.label}
               onPress={() => setCategory(item.id)}
               style={({ pressed }) => [styles.category, selected && styles.categorySelected, pressed && styles.pressed]}
             >
-              <Text style={[styles.categorySymbol, selected && styles.categorySymbolSelected]} accessibilityElementsHidden>{item.symbol}</Text>
+              <Text
+                style={[styles.categorySymbol, selected && styles.categorySymbolSelected]}
+                importantForAccessibility="no"
+                accessibilityElementsHidden
+              >
+                {item.symbol}
+              </Text>
               <Text style={[styles.categoryLabel, selected && styles.categoryLabelSelected]}>{item.label}</Text>
-              {selected && <Text style={styles.selectedText}>Selected ✓</Text>}
+              <View style={styles.mark}><SelectionMark selected={selected} /></View>
             </Pressable>
           );
         })}
       </View>
 
-      <Text style={styles.fieldLabel}>Details</Text>
+      <Text style={styles.fieldLabel}>Detalhes</Text>
       <TextInput
-        accessibilityLabel="Barrier details"
-        placeholder="Example: construction blocks the full sidewalk"
-        placeholderTextColor="#6B7772"
+        accessibilityLabel="Detalhes da barreira"
+        accessibilityHint={`Até ${MAX_DETAILS} caracteres`}
+        placeholder="Exemplo: obra bloqueando toda a calçada"
+        placeholderTextColor="#5F6C67"
         multiline
         value={details}
         onChangeText={setDetails}
-        maxLength={180}
+        maxLength={MAX_DETAILS}
         style={styles.input}
       />
-      <Text style={styles.count}>{details.length}/180</Text>
+      <Text style={styles.count} accessibilityLabel={`${details.length} de ${MAX_DETAILS} caracteres`}>
+        {details.length}/{MAX_DETAILS}
+      </Text>
 
-      {!formReady && <Text style={styles.helper}>Select a barrier and add details to continue.</Text>}
-      <ActionButton label="Save report" accessibilityLabel="Submit barrier report" onPress={submit} style={styles.submit} />
+      {!formReady && (
+        <Text style={styles.helper} accessibilityLiveRegion="polite">
+          ⓘ Escolha o tipo de barreira e escreva os detalhes para enviar.
+        </Text>
+      )}
+      <ActionButton
+        label="Enviar relato"
+        accessibilityLabel="Enviar relato de barreira"
+        accessibilityHint={formReady ? undefined : 'Escolha o tipo de barreira e escreva os detalhes primeiro'}
+        onPress={submit}
+        disabled={!formReady}
+        style={styles.submit}
+      />
     </ScrollView>
   );
 }
@@ -119,28 +127,28 @@ export function BarrierReportScreen({ onDone }: Props) {
 const styles = StyleSheet.create({
   page: { flex: 1, backgroundColor: colors.cream },
   content: { width: '100%', maxWidth: 720, alignSelf: 'center', padding: spacing.lg, paddingTop: 34, paddingBottom: 48 },
-  step: { color: colors.orange, fontSize: 12, fontWeight: '900', letterSpacing: 1.4, marginBottom: 9 },
+  step: { color: colors.orangeText, fontSize: 13, fontWeight: '900', letterSpacing: 1.4, marginBottom: 9 },
   title: { color: colors.ink, fontSize: 34, lineHeight: 40, fontWeight: '900' },
   subtitle: { color: colors.gray, fontSize: 16, lineHeight: 24, marginTop: 10, marginBottom: 24 },
-  grid: { flexDirection: 'row', flexWrap: 'wrap', marginHorizontal: -6 },
-  category: { width: '46.7%', minHeight: 142, backgroundColor: colors.white, borderRadius: 20, borderWidth: 2, borderColor: colors.line, margin: 6, padding: 16, justifyContent: 'space-between' },
-  categorySelected: { backgroundColor: colors.mint, borderColor: colors.forest },
-  pressed: { opacity: 0.78 },
-  categorySymbol: { color: colors.orange, fontSize: 28, fontWeight: '900' },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: 12 },
+  category: { width: '48.5%', minHeight: 150, backgroundColor: colors.white, borderRadius: 20, borderWidth: 2, borderColor: colors.lineStrong, padding: 16, justifyContent: 'space-between' },
+  categorySelected: { backgroundColor: colors.mint, borderColor: colors.forest, borderWidth: 3 },
+  pressed: { opacity: 0.82 },
+  categorySymbol: { color: colors.orangeText, fontSize: 28, fontWeight: '900' },
   categorySymbolSelected: { color: colors.forest },
   categoryLabel: { color: colors.ink, fontSize: 16, lineHeight: 21, fontWeight: '800', marginTop: 10 },
   categoryLabelSelected: { color: colors.forest },
-  selectedText: { color: colors.forest, fontSize: 12, fontWeight: '900', marginTop: 8 },
+  mark: { marginTop: 8 },
   fieldLabel: { color: colors.ink, fontSize: 16, fontWeight: '800', marginTop: 24, marginBottom: 8 },
-  input: { minHeight: 120, backgroundColor: colors.white, borderWidth: 2, borderColor: colors.line, borderRadius: 18, padding: 16, color: colors.ink, fontSize: 16, lineHeight: 23, textAlignVertical: 'top' },
-  count: { color: colors.gray, fontSize: 12, textAlign: 'right', marginTop: 6 },
-  helper: { color: colors.gray, fontSize: 13, marginTop: 12 },
+  input: { minHeight: 120, backgroundColor: colors.white, borderWidth: 2, borderColor: colors.lineStrong, borderRadius: 18, padding: 16, color: colors.ink, fontSize: 16, lineHeight: 23, textAlignVertical: 'top' },
+  count: { color: colors.gray, fontSize: 13, textAlign: 'right', marginTop: 6 },
+  helper: { color: colors.gray, fontSize: 14, lineHeight: 20, marginTop: 12 },
   submit: { marginTop: 16 },
   successPage: { flex: 1, backgroundColor: colors.cream, padding: spacing.lg, alignItems: 'center', justifyContent: 'center' },
   successCircle: { width: 110, height: 110, borderRadius: 55, backgroundColor: colors.mint, borderWidth: 3, borderColor: colors.forest, alignItems: 'center', justifyContent: 'center', marginBottom: 24 },
   successSymbol: { color: colors.forest, fontSize: 52, fontWeight: '900' },
   successTitle: { color: colors.ink, fontSize: 36, fontWeight: '900', textAlign: 'center' },
   successText: { color: colors.gray, fontSize: 18, lineHeight: 26, textAlign: 'center', marginTop: 10 },
-  successMeta: { color: colors.forest, fontSize: 13, fontWeight: '700', textAlign: 'center', marginTop: 18 },
-  doneButton: { alignSelf: 'stretch', marginTop: 30 },
+  successMeta: { color: colors.forest, fontSize: 14, fontWeight: '700', textAlign: 'center', marginTop: 18 },
+  doneButton: { alignSelf: 'stretch', marginTop: 30, maxWidth: 520, width: '100%' },
 });

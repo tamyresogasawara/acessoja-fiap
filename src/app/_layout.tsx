@@ -1,8 +1,11 @@
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { colors } from '../theme';
+import { useReduceMotion } from '../lib/use-reduce-motion';
 
 export default function RootLayout() {
+  const reduceMotion = useReduceMotion();
+
   return (
     <>
       <StatusBar style="dark" />
@@ -13,13 +16,14 @@ export default function RootLayout() {
           headerTitleStyle: { fontWeight: '800' },
           headerShadowVisible: false,
           contentStyle: { backgroundColor: colors.cream },
-          animation: 'slide_from_right',
+          // Transição lateral indica avanço na jornada; desativada com "Reduzir movimento".
+          animation: reduceMotion ? 'none' : 'slide_from_right',
         }}
       >
-        <Stack.Screen name="index" options={{ headerShown: false }} />
-        <Stack.Screen name="plan" options={{ title: 'Plan route', headerBackTitle: 'Home' }} />
-        <Stack.Screen name="route" options={{ title: 'Your route', headerBackTitle: 'Plan' }} />
-        <Stack.Screen name="report" options={{ title: 'Report barrier', headerBackTitle: 'Home' }} />
+        <Stack.Screen name="index" options={{ headerShown: false, title: 'Início' }} />
+        <Stack.Screen name="plan" options={{ title: 'Planejar rota', headerBackTitle: 'Início' }} />
+        <Stack.Screen name="route" options={{ title: 'Sua rota', headerBackTitle: 'Planejar' }} />
+        <Stack.Screen name="report" options={{ title: 'Relatar barreira', headerBackTitle: 'Início' }} />
       </Stack>
     </>
   );
