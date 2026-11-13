@@ -1,121 +1,109 @@
 # AcessoJá
 
-Aplicativo CitizenTech para planejamento de rotas urbanas acessíveis e relato comunitário de barreiras.
+Aplicativo CitizenTech para planejar rotas urbanas acessíveis e relatar barreiras à comunidade.
 
-> **Status acadêmico:** aplicação funcional e validada localmente. Repositório público: https://github.com/tamyresogasawara/acessoja-fiap. Antes da entrega, preencher RM e adicionar o link do vídeo-pitch.
+**Global Solution FIAP · CitizenTech**
+
+## Integrante
+
+- Tamyres Ogasawara Macedo — RM 552055
+
+## Links da entrega
+
+- Repositório (público): https://github.com/tamyresogasawara/acessoja-fiap
+- Vídeo-pitch: _a publicar_
+- Documento PDF: [`docs/deliverables/TamyresOgasawaraMacedo-AcessoJa.pdf`](docs/deliverables/TamyresOgasawaraMacedo-AcessoJa.pdf)
 
 ## Problema
 
-Pessoas com deficiência, mobilidade reduzida, idosos e cuidadores frequentemente descobrem escadas, calçadas bloqueadas, ausência de rampas e entradas inacessíveis somente quando já estão no caminho. Essa incerteza aumenta o tempo de deslocamento, gera risco e pode impedir o acesso a serviços essenciais.
-
-## Solução
-
-O AcessoJá oferece uma jornada curta e utilizável na rua:
-
-1. O cidadão informa o perfil de mobilidade.
-2. O app seleciona uma rota com menos barreiras e maior pontuação de acessibilidade.
-3. A pessoa recebe instruções textuais por trecho, disponíveis offline.
-4. Qualquer cidadão pode relatar uma barreira para alertar a comunidade.
-
-Os dados desta versão acadêmica são simulados, conforme permitido pelo briefing.
+Pessoas com deficiência, mobilidade reduzida, idosos e cuidadores muitas vezes descobrem escadas, calçadas bloqueadas, falta de rampas e entradas inacessíveis só quando já estão no caminho. Essa incerteza aumenta o tempo de deslocamento, gera risco e pode impedir o acesso a serviços essenciais, como uma consulta na unidade de saúde.
 
 ## Cidadão beneficiado
 
-Pessoas com deficiência motora, mobilidade reduzida ou baixa visão; idosos; cuidadores; e qualquer cidadão que precise antecipar obstáculos urbanos.
+Pessoas que usam cadeira de rodas, pessoas com mobilidade reduzida ou baixa visão, idosos e cuidadores que planejam o deslocamento de outra pessoa.
+
+## Solução
+
+O AcessoJá oferece uma jornada curta, pensada para uso na rua, com pressa, bateria limitada e sinal instável:
+
+1. O cidadão escolhe o perfil de mobilidade (cadeira de rodas, mobilidade reduzida ou baixa visão).
+2. O motor de rotas compara as rotas candidatas e recomenda a que tem **menos barreiras**, depois **maior pontuação de acessibilidade** e só então **menor tempo**.
+3. O app explica a escolha (“A rota mais curta leva 11 min, mas tem 2 barreiras… Esta leva +4 min e tem 0 barreiras.”) e mostra instruções por trecho adaptadas ao perfil.
+4. A rota pode ser salva para uso sem internet.
+5. Qualquer pessoa pode relatar uma barreira em dois campos para alertar a comunidade.
+
+Os dados são simulados (Santos/SP), conforme permitido pelo briefing.
 
 ## Recursos
 
-- Navegação funcional com Expo Router.
-- Três perfis: cadeira de rodas, mobilidade reduzida e baixa visão.
-- Pontuação de acessibilidade acompanhada de explicação textual.
-- Rota detalhada com superfície, travessia e entrada acessível.
-- Relato de barreira com seleção, descrição e confirmação.
-- Estados simulados de uso offline e bateria limitada.
-- Motion design funcional em entrada de resultado, confirmação e microinterações.
-- Respeito à preferência de redução de movimento do sistema.
-- Áreas de toque mínimas de 56 px, contraste alto, rótulos e estados para leitores de tela.
-- Informações nunca dependem apenas de cor.
+- Navegação com Expo Router: Início → Planejar rota → Sua rota; Início → Relatar barreira.
+- Três perfis de mobilidade, cada um com rotas e instruções próprias (`src/lib/route-data.ts`).
+- Motor de seleção de rota testado (`src/lib/route-engine.ts`).
+- Card “Por que esta rota?” que torna a recomendação transparente.
+- Relato de barreira com envio desabilitado até o formulário estar completo.
+- Interface toda em português, com linguagem curta e direta.
+
+## Motion design
+
+| Onde | Animação | Função na jornada |
+| --- | --- | --- |
+| Troca de telas | Deslize lateral | Indica avanço/retorno na jornada |
+| Resultado da rota | Opacidade + deslocamento de 16 px | Marca a mudança de estado e leva o olhar à recomendação |
+| Pontuação | Barra se preenche até 94/100 | Reforça visualmente o número da pontuação |
+| Seleção de perfil/categoria | Selo “Selecionado ✓” surge com mola | Confirma o toque |
+| Botões | Escala 0,97 ao pressionar | Retorno imediato de toque |
+| Relato enviado | Escala + opacidade no ✓ | Confirma que a ação foi concluída |
+
+Com **Reduzir movimento** ativado no sistema, todas as animações (inclusive a troca de telas) viram mudanças instantâneas (`src/lib/use-reduce-motion.ts`).
+
+## Acessibilidade
+
+- Contraste WCAG AA: textos ≥ 4,5:1 (laranja de texto `#A84A1C` = 5,3:1 sobre creme); bordas de controles ≥ 3:1.
+- Botões com altura mínima de 56 px e cards de seleção com 76–150 px de altura.
+- `accessibilityRole`, `accessibilityLabel`, `accessibilityHint` e `accessibilityState` (selecionado, desabilitado) em controles.
+- Seleção indicada por cor **+** borda mais grossa **+** texto “Selecionado ✓”.
+- Anúncios para leitor de tela ao iniciar navegação, salvar rota e enviar relato.
+- Ícones decorativos ocultos de leitores de tela (iOS e Android).
+- Telas roláveis e tipografia que respeita o aumento de fonte do sistema.
+
+## ODS
+
+- **ODS 11 — Cidades e Comunidades Sustentáveis** (metas 11.2 e 11.7: transporte e espaços públicos acessíveis).
+- **ODS 10 — Redução das Desigualdades** (meta 10.2: inclusão social de todas as pessoas, incluindo pessoas com deficiência).
 
 ## Stack
 
-- React Native 0.88
-- Expo SDK 58
-- Expo Router
-- TypeScript
-- Jest + React Native Testing Library
+React Native 0.88 · Expo SDK 58 · Expo Router · TypeScript · Jest + React Native Testing Library
 
 ## Como executar
 
-### Requisitos
-
-- Node.js 20 ou superior
-- npm
-- Aplicativo Expo Go no celular, ou navegador moderno
+Requisitos: Node.js 20+, npm e o app **Expo Go** no celular (ou um navegador).
 
 ```bash
+git clone https://github.com/tamyresogasawara/acessoja-fiap.git
+cd acessoja-fiap
 npm install
-npm start
-```
-
-No terminal do Expo, escaneie o QR code com o Expo Go.
-
-Para abrir no navegador:
-
-```bash
-npm run web
+npm start        # escaneie o QR code com o Expo Go
+npm run web      # ou abra no navegador
 ```
 
 ## Validação
 
 ```bash
-npm test
-npm run typecheck
-npx expo-doctor
-npm run export:web
+npm test             # 5 suítes, 10 testes
+npm run typecheck    # TypeScript sem erros
+npm run export:web   # exporta as rotas /, /plan, /route e /report
 ```
-
-Resultado verificado no ambiente de desenvolvimento:
-
-- 4 suítes e 5 testes automatizados aprovados.
-- TypeScript sem erros.
-- Expo Doctor: 20/20 verificações aprovadas.
-- Exportação web estática concluída com as rotas `/`, `/plan`, `/route` e `/report`.
 
 ## Estrutura
 
 ```text
 src/
-  app/          # rotas e navegação
+  app/          # rotas (Expo Router) e layout de navegação
   components/   # telas e componentes acessíveis
-  lib/          # seleção de rota e testes de domínio
-  theme.ts      # cores e espaçamentos
+  lib/          # motor de rotas, dados simulados e hook de movimento reduzido
+  theme.ts      # cores (com contraste documentado) e espaçamentos
+docs/
+  deliverables/ # PDF da entrega
+  pitch-script.md
 ```
-
-## Motion design
-
-- **Entrada do resultado:** transição de opacidade e deslocamento orienta a mudança de estado.
-- **Confirmação de relato:** escala e opacidade fornecem retorno imediato.
-- **Botões:** redução de escala comunica o toque.
-- **Redução de movimento:** animações são removidas quando o sistema solicita movimento reduzido.
-
-## Acessibilidade
-
-- Contraste forte entre verde-escuro, creme, branco e laranja.
-- Botões grandes, espaçados e com `accessibilityRole`/`accessibilityLabel`.
-- Seleções usam cor, texto “Selected” e símbolo de confirmação.
-- Status dinâmicos usam regiões ao vivo.
-- Conteúdo suporta rolagem e aumento de texto.
-- Linguagem curta, direta e orientada à ação.
-
-## ODS
-
-O projeto se relaciona principalmente ao **ODS 11 — Cidades e Comunidades Sustentáveis**, em especial à mobilidade e ao acesso universal a espaços e serviços públicos. Também contribui para o **ODS 10 — Redução das Desigualdades**, ao reduzir barreiras de participação urbana.
-
-## Integrante
-
-- Tamyres Ogasawara Macedo — RM: **PREENCHER ANTES DA ENTREGA**
-
-## Links da entrega
-
-- GitHub público: https://github.com/tamyresogasawara/acessoja-fiap
-- Vídeo-pitch: **PREENCHER APÓS PUBLICAÇÃO**

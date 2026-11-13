@@ -11,21 +11,21 @@
 ## 0:45–1:40 — Demonstração
 
 1. Mostrar a tela inicial e destacar o uso offline.
-2. Tocar em **Plan accessible route**.
+2. Tocar em **Planejar rota acessível**.
 3. Mostrar origem, destino e os três perfis de mobilidade.
-4. Selecionar **Wheelchair** e tocar em **Find safest route**.
+4. Selecionar **Cadeira de rodas** e tocar em **Encontrar rota mais segura**.
 5. Mostrar a animação de entrada do resultado.
-6. Explicar o score 94/100, a verificação textual e os três trechos da rota.
-7. Tocar em **Save for offline use** e **Start navigation**.
-8. Voltar e abrir **Report a barrier**.
-9. Selecionar **Blocked sidewalk**, escrever uma descrição e salvar.
+6. Explicar o score 94/100 (a barra se preenche até o valor), o card “Por que esta rota?” (+4 min, 0 barreiras) e os três trechos da rota.
+7. Tocar em **Salvar para usar offline** e **Iniciar navegação**.
+8. Voltar e abrir **Relatar uma barreira**.
+9. Mostrar que “Enviar relato” fica desabilitado até o formulário estar completo. Selecionar **Calçada bloqueada**, escrever uma descrição e salvar.
 10. Mostrar a confirmação animada.
 
 ## 1:40–2:20 — Design, UX, motion e acessibilidade
 
 “A interface foi pensada para uso na rua, com pressa, conexão instável e pouca bateria. Por isso, as ações principais ficam evidentes, os textos são curtos e a rota pode ser salva offline. O motion design não é decorativo: ele confirma toques, orienta a entrada do resultado e sinaliza que o relato foi salvo. Se o sistema estiver configurado para reduzir movimento, as animações são removidas.”
 
-“Na acessibilidade, usamos contraste alto, áreas de toque grandes, rótulos para leitores de tela e informação redundante. Uma seleção não aparece apenas em verde: também mostra o texto ‘Selected’ e um símbolo de confirmação. O score também vem acompanhado de uma explicação textual.”
+“Na acessibilidade, usamos contraste alto, áreas de toque grandes, rótulos para leitores de tela e informação redundante. Uma seleção não aparece apenas em verde: também mostra o selo ‘Selecionado ✓’, que surge com uma microanimação. O score também vem acompanhado de uma explicação textual.”
 
 ## 2:20–2:45 — ODS e fechamento
 
