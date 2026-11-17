@@ -31,6 +31,7 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "test": "jest --runInBand",
+    "test:web-metadata": "node scripts/check-web-metadata.mjs",
     "typecheck": "tsc --noEmit",
     "export:web": "expo export --platform web"
   },
