@@ -11,7 +11,7 @@ Aplicativo CitizenTech para planejar rotas urbanas acessíveis e relatar barreir
 ## Links da entrega
 
 - Repositório (público): https://github.com/tamyresogasawara/acessoja-fiap
-- Vídeo-pitch: _a publicar_
+- Vídeo-pitch: https://www.loom.com/share/9244e5ce956941f7a88a02f7f742ae3a
 - Documento PDF: [`docs/deliverables/TamyresOgasawaraMacedo-AcessoJa.pdf`](docs/deliverables/TamyresOgasawaraMacedo-AcessoJa.pdf)
 
 ## Problema
